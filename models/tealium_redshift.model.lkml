@@ -4,9 +4,33 @@ connection: "tealium_redshift"
 include: "/views/**/*.view"
 
 
+explore: visits_view {hidden: yes}
+
+explore: audience{
+  from: visitors_view
+  hidden: yes
+  view_label: "Visitors View"
+  join: visits_view{
+    type: left_outer
+    relationship: one_to_many
+    sql_on: ${audience.visitor_id} = ${visits_view.visit_visitor_id};;
+    view_label: "Visits View"
+  }
+  join: visitor_replaces_view {
+    type: left_outer
+    view_label: "Visitor Replaces View"
+    relationship: one_to_one
+    sql_on: ${audience.visitor_id} = ${visitor_replaces_view.visitor_id};;
+  }
+  join: events_view_all_events {
+    type: left_outer
+    relationship: one_to_many
+    view_label: "All Events"
+    sql_on: ${visitor_replaces_view.visitor_replaces_id} = ${events_view_all_events.event_visitor_id} ;;
+  }
+}
 
 
-explore: visitors_view_normalized {hidden: yes}
 
 # explore: events__0270675f_f8a5_44c9_e85e_66e4c271ae95 {
 #   join: visitors {
@@ -211,5 +235,3 @@ explore: visitors_view_normalized {hidden: yes}
 #     relationship: many_to_one
 #   }
 # }
-
-# explore: visits_view {}
